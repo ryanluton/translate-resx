@@ -1,0 +1,44 @@
+{
+  "name": "translate-resx",
+  "version": "0.0.1",
+  "description": "Translate .resx files with the translation API provided by Google Cloud Platform",
+  "main": "translate-resx.js",
+  "bin": {
+    "translate-resx": "cli.js"
+  },
+  "homepage": "https://github.com/ryanluton/translate-resx",
+  "bugs": "https://github.com/ryanluton/translate-resx/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ryanluton/translate-resx"
+  },
+  "author": {
+    "name": "Ryan Luton",
+    "email": "ryan@lutonmedia.com"
+  },
+  "scripts": {
+    "test": "grunt"
+  },
+  "license": "MIT",
+  "preferGlobal": "true",
+  "keywords":[
+    "translate-resx",
+    ".resx translation",
+    "resource file translations",
+    "google translate api"
+  ],
+  "dependencies": {
+    "google-translate": "^1.0.6",
+    "multiline": "~0.3.4",
+    "xml2js": "^0.4.16",
+    "yargs": "^4.7.1"
+  },
+  "devDependencies": {
+    "grunt-contrib-jshint": "^0.10.0",
+    "grunt-contrib-nodeunit": "^0.3.3",
+    "grunt-contrib-watch": "^0.6.1",
+    "load-grunt-tasks": "^0.4.0",
+    "time-grunt": "^0.3.1",
+    "jshint-stylish": "^0.2.0"
+  }
+}

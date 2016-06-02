@@ -1,0 +1,23 @@
+{
+  "name": "translate-resx",
+  "version": "0.0.0",
+  "homepage": "https://github.com/ryanluton/translate-resx",
+  "authors": [
+    "Ryan Luton"
+  ],
+  "description": "Translate .resx files with the translation API provided by Google Cloud Platform",
+  "main": "translate-resx.js",
+  "keywords": [
+    "translate-resx",
+    ".resx translation",
+    " resource file translations",
+    " google translate api"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

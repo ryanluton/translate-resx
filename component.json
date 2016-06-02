@@ -1,0 +1,20 @@
+{
+  "name": "translate-resx",
+  "repo": "https://github.com/ryanluton/translate-resx",
+  "description": "Translate .resx files with the translation API provided by Google Cloud Platform",
+  "version": "0.0.0",
+  "keywords": [
+    "translate-resx",
+    ".resx translation",
+    " resource file translations",
+    " google translate api"
+  ],
+  "dependencies": {
+  },
+  "development": {
+  },
+  "scripts": [
+      "translate-resx.js"
+  ],
+  "license": "MIT"
+}
