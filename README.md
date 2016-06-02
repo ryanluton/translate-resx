@@ -2,6 +2,8 @@
 
 Translate .resx files with the translation API provided by Google Cloud Platform
 
+__NOTE: This is still a WIP__
+
 ## Getting Started
 Install the module with: `npm install translate-resx`
 
