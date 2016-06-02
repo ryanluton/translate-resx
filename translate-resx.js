@@ -12,35 +12,47 @@ var apiKey = process.env.GOOGLE_API_KEY || ''; //API KEY FROM GOOGLE CLOUD PLATF
 
 // Nodejs libs
 var fs = require( 'fs' ); //filesystem
+var path = require( 'path' );
 
 // External libs
 var xml2js = require( 'xml2js' ); //xml parser
 var googleTranslate = require( 'google-translate' )( apiKey ); //google translate
 
-
 //languages supported by google translate api
-exports.locales = function (locale) {
-  console.log('');
-  console.log('Available Languages');
-  googleTranslate.getSupportedLanguages(locale, function(err, languageCodes) {
-    console.log(languageCodes);
+exports.locales = function ( locale ) {
+  console.log( '' );
+  console.log( 'Available Languages' );
+  googleTranslate.getSupportedLanguages( locale, function ( err, languageCodes ) {
+    console.log( languageCodes );
     // => [{ language: "en", name: "English" }, ...]
-  });
+  } );
 }
 
 //translate resx file 
 exports.translate = function ( filename, locale ) {
 
+  //file .ext
+  var fileExtension = path.extname( filename );
+
+  //check if filetype matches 
+  if ( fileExtension != '.resx' ) {
+    return console.log( '\nFiletype does not match .resx or .RESX\n' );
+  }
+
+  var fileName = path.basename( filename, '.resx' );
+  var folderPath = path.dirname( filename );
   var locale = locale;
-  var fileToTranslate = 'AdminSettings.ascx';
+  
+  var costToTranslate = 0;
+  var googleCost = 20 / 1000000;
+  var charsToTranslate = 0;
 
-  //local files not included in repo
-  var resxFolderPath = './resx/';
-  var completeFolderPath = './translated/';
+  var fileToTranslate = folderPath + '/' + fileName + fileExtension;
 
-  //clean this up
-  var filePath = resxFolderPath + fileToTranslate + '.resx';
-  var filePathToWrite = completeFolderPath + fileToTranslate + '.' + locale + '.resx';
+
+
+
+  var filePathToWrite = folderPath + '/' + fileName + '.' + locale + fileExtension;
 
   //////// TODO 
   // compare &nbsp;
@@ -52,6 +64,7 @@ exports.translate = function ( filename, locale ) {
 
   //translate text
   function sendToGoogle( data, fullFile ) {
+    console.log( '  Translating ' + fileToTranslate );
     //data = data.slice( 0, 50 );
     googleTranslate.translate( data, 'en', locale, function ( err, translations ) {
       if ( err ) {
@@ -63,6 +76,8 @@ exports.translate = function ( filename, locale ) {
           //console.log( key + ' ' + value );
           textToShip.push( translatedText );
         }
+
+        costToTranslate = (charsToTranslate * googleCost);
         //console.log( textToShip.length );
         //console.log( fullFile );
         buildXml( textToShip, fullFile );
@@ -71,15 +86,15 @@ exports.translate = function ( filename, locale ) {
   }
 
 
-// var array = [ 'text' ],
-//   hasValue = [];
-// for ( var i = 0; i < Things.length; i++ ) {
+  // var array = [ 'text' ],
+  //   hasValue = [];
+  // for ( var i = 0; i < Things.length; i++ ) {
 
-//   if ( Things[ i ].value ) {
-//     array.push( value );
-//     hasValue.push( thing[ i ] );
-//   }
-// }
+  //   if ( Things[ i ].value ) {
+  //     array.push( value );
+  //     hasValue.push( thing[ i ] );
+  //   }
+  // }
 
 
 
@@ -95,9 +110,10 @@ exports.translate = function ( filename, locale ) {
       var key = textStrings[ i ].$.name;
       var value = textStrings[ i ].value[ 0 ];
       //console.log( key + ' ' + value );
+      charsToTranslate += value.length;
       textToTranslate.push( value );
     }
-    //console.log( textToTranslate.length );
+    console.log( '  Found ' + textToTranslate.length + ' words ('+charsToTranslate+' characters) to translate' );
     //post array
     sendToGoogle( textToTranslate, fullFile );
   }
@@ -122,7 +138,7 @@ exports.translate = function ( filename, locale ) {
 
   //parse xml
   function parseXml( data ) {
-    console.log( '  Parsing XML to JSON' );
+    console.log( '\n  Parsing XML for Translation to ' + locale);
     var parser = new xml2js.Parser();
     parser.parseString( data, function ( err, result ) {
       //console.log( result.root.data );
@@ -135,18 +151,20 @@ exports.translate = function ( filename, locale ) {
   function writeFile( dataToWrite, filePathToWrite ) {
     fs.writeFile( filePathToWrite, dataToWrite, function ( err ) {
       if ( err ) return console.log( err );
-      console.log( 'File written to ' + filePathToWrite );
+      console.log( '  File written to ' + filePathToWrite );
+      console.log( '  You just gave google aprox $'+ costToTranslate.toFixed(2));
+      console.log( '' );
     } );
   }
 
   //read file
-  function readFile( filePath ) {
-    var file = fs.readFileSync( filePath, "utf8" );
+  function readFile( data ) {
+    var file = fs.readFileSync( data, "utf8" );
     parseXml( file );
   }
 
   //start it all
-  readFile( filePath );
+  readFile( fileToTranslate );
 
 
 };

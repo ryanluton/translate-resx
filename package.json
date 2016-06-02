@@ -4,7 +4,7 @@
   "description": "Translate .resx files with the translation API provided by Google Cloud Platform",
   "main": "translate-resx.js",
   "bin": {
-    "translate-resx": "cli.js"
+    "tresx": "cli.js"
   },
   "homepage": "https://github.com/ryanluton/translate-resx",
   "bugs": "https://github.com/ryanluton/translate-resx/issues",

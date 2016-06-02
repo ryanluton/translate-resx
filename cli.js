@@ -2,8 +2,8 @@
 
 'use strict';
 
-var multiline = require('multiline');
-var translateResx = require('./translate-resx');
+var multiline = require( 'multiline' );
+var translateResx = require( './translate-resx' );
 
 var args = require( 'yargs' )
   .usage( '$0 <cmd> [args]' )
@@ -15,13 +15,24 @@ var args = require( 'yargs' )
     alias: 'f',
     describe: 'RESX File to Translate'
   } )
+  .demand('f')
   .option( 'locale', {
     alias: 'l',
     describe: 'Locale to Translate to || Defaults to \'es\''
   } )
-  .command( 'tresx', 'Translate Your RESX Files', {}, function ( argv ) {
-    console.log( 'hello', argv.name, 'welcome to yargs!' )
+  .demand('l')
+  // .option( 'key', {
+  //   alias: 'k',
+  //   describe: 'API Key for use with configure'
+  // } )
+  .command( 'ls', 'List available Google Translate locales', {}, function ( argv ) {
+    var locale = 'en';
+    translateResx.locales( locale );
   } )
+  // .command( 'configure', 'set Google Translate API Key', {}, function ( argv ) {
+  //   //echo('export TESTENV='+argv.key);
+  // } )
+  .example('$0 -f foo.resx -l es', 'Translate foo.resx to foo.es.resx')
   .help( 'help' )
   .argv;
 
@@ -33,17 +44,10 @@ if ( ( args.v ) || ( args.version ) ) {
 }
 
 
-if ( ( args.f ) || ( args.file ) && args.l ) {
+if ( ( args.f ) || ( args.file ) && ( args.l ) || ( args.locale ) ) {
 
   var locale = args.l || 'es';
-  var filepath = args.f || args.file || '';
+  var filepath = args.f || args.file;
 
   translateResx.translate( filepath, locale );
-}
-
-
-if ( ( args.lc ) || ( args.locales ) ) {
-  console.log( 'true' );
-  var locale = 'en';
-  translateResx.locales( locale );
 }
