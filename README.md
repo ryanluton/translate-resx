@@ -16,10 +16,12 @@ Install with cli command
 
 ```bash
 $ npm install -g translate-resx
-$ translate-resx -h
+$ export GOOGLE_API_KEY='yourAPIkey'
+$ tresx --help
 ```
 
 ## Documentation
+
 _(Coming soon)_
 
 ## Examples
