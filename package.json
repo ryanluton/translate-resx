@@ -1,6 +1,6 @@
 {
   "name": "translate-resx",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Translate .resx files with the translation API provided by Google Cloud Platform",
   "main": "translate-resx.js",
   "bin": {
