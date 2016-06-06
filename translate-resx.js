@@ -31,29 +31,6 @@ exports.locales = function ( locale ) {
 //translate resx file 
 exports.translate = function ( filename, locale ) {
 
-  //file .ext
-  var fileExtension = path.extname( filename );
-
-  //check if filetype matches 
-  if ( fileExtension != '.resx' ) {
-    return console.log( '\nFiletype does not match .resx or .RESX\n' );
-  }
-
-  var fileName = path.basename( filename, '.resx' );
-  var folderPath = path.dirname( filename );
-  var locale = locale;
-  
-  var costToTranslate = 0;
-  var googleCost = 20 / 1000000;
-  var charsToTranslate = 0;
-
-  var fileToTranslate = folderPath + '/' + fileName + fileExtension;
-
-
-
-
-  var filePathToWrite = folderPath + '/' + fileName + '.' + locale + fileExtension;
-
   //////// TODO 
   // compare &nbsp;
   // check file length
@@ -61,26 +38,55 @@ exports.translate = function ( filename, locale ) {
   // cli or frontend to upload resx file
   // couchbase poc
 
+  //file
+  var folderPath = path.dirname( filename );
+  var fileName = path.basename( filename, '.resx' );
+  var fileExtension = path.extname( filename );
 
-  //translate text
+  //read/write
+  var fileToTranslate = folderPath + '/' + fileName + fileExtension;
+  var filePathToWrite = folderPath + '/' + fileName + '.' + locale +'-'+locale.toUpperCase() +fileExtension;
+
+  //check if filetype matches 
+  if ( fileExtension != '.resx' ) {
+    return console.log( '\nFiletype does not match .resx or .RESX\n' );
+  }
+
+  //math for cost bit
+  var costToTranslate = 0;
+  var googleCost = 20 / 1000000;
+  var charsToTranslate = 0;
+
+  //5///translate text
   function sendToGoogle( data, fullFile ) {
     console.log( '  Translating ' + fileToTranslate );
-    //data = data.slice( 0, 50 );
-    googleTranslate.translate( data, 'en', locale, function ( err, translations ) {
+    //return console.log(data.filter(v=>v!=''));
+    googleTranslate.translate( data.filter(v=>v!=''), 'en', locale, function ( err, translations ) {
       if ( err ) {
         console.log( err );
       } else {
-        var textToShip = [];
-        for ( var i = 0; i < translations.length; i++ ) {
-          var translatedText = translations[ i ].translatedText;
-          //console.log( key + ' ' + value );
-          textToShip.push( translatedText );
+
+        function findWithAttr( array, attr, value ) {
+          for ( var i = 0; i < array.length; i += 1 ) {
+            if ( array[ i ][ attr ][0] === value ) {
+              return i;
+            }
+          }
         }
 
-        costToTranslate = (charsToTranslate * googleCost);
-        //console.log( textToShip.length );
-        //console.log( fullFile );
-        buildXml( textToShip, fullFile );
+        for ( var i = 0; i < translations.length; i++ ) {
+          var translation = translations[ i ];
+          var whereAmI = findWithAttr(fullFile.root.data, 'value', translation.originalText);
+
+          if (whereAmI > -1) {
+            fullFile.root.data[whereAmI].value = translation.translatedText;
+          }
+          
+        }
+        //google cost bit
+        costToTranslate = ( charsToTranslate * googleCost );
+        //build the .resx back
+        buildXml( fullFile );
       }
     } );
   }
@@ -97,11 +103,7 @@ exports.translate = function ( filename, locale ) {
   // }
 
 
-
-
-
-
-  //prepare text
+  //4///prepare text
   function translateFile( data ) {
     var fullFile = data;
     var textStrings = data.root.data;
@@ -113,35 +115,30 @@ exports.translate = function ( filename, locale ) {
       charsToTranslate += value.length;
       textToTranslate.push( value );
     }
-    console.log( '  Found ' + textToTranslate.length + ' words ('+charsToTranslate+' characters) to translate' );
+    console.log( '  Found ' + textToTranslate.length + ' words (' + charsToTranslate + ' characters) to translate' );
     //post array
     sendToGoogle( textToTranslate, fullFile );
   }
 
   //build xml
-  function buildXml( data, fullFile ) {
-
-
-    var textToReplace = fullFile;
-
-    for ( var i = 0; i < textToReplace.root.data.length; i++ ) {
-      textToReplace.root.data[ i ].value = data[ i ];
-    }
-
-    //console.log(textToReplace);
+  function buildXml( data ) {
+    // var textToReplace = fullFile;
+    // for ( var i = 0; i < textToReplace.root.data.length; i++ ) {
+    //   textToReplace.root.data[ i ].value = data[ i ];
+    // }
+    // //console.log(textToReplace);
 
     var builder = new xml2js.Builder();
-    var xml = builder.buildObject( textToReplace );
+    var xml = builder.buildObject( data );
     writeFile( xml, filePathToWrite )
   }
 
-
-  //parse xml
+  //3///parse xml
   function parseXml( data ) {
-    console.log( '\n  Parsing XML for Translation to ' + locale);
+    console.log( '\n  Parsing XML for Translation to ' + locale );
     var parser = new xml2js.Parser();
     parser.parseString( data, function ( err, result ) {
-      //console.log( result.root.data );
+      if ( err ) return console.log( err );
       translateFile( result );
     } );
   };
@@ -152,19 +149,32 @@ exports.translate = function ( filename, locale ) {
     fs.writeFile( filePathToWrite, dataToWrite, function ( err ) {
       if ( err ) return console.log( err );
       console.log( '  File written to ' + filePathToWrite );
-      console.log( '  You just gave google aprox $'+ costToTranslate.toFixed(2));
+      console.log( '  You just gave google aprox $' + costToTranslate.toFixed( 2 ) );
       console.log( '' );
     } );
   }
 
-  //read file
+  //2///read file
   function readFile( data ) {
     var file = fs.readFileSync( data, "utf8" );
     parseXml( file );
   }
 
-  //start it all
-  readFile( fileToTranslate );
+
+
+  //check if locale is valid
+  if ( locale ) {
+    googleTranslate.getSupportedLanguages( function ( err, languageCodes ) {
+      if ( err ) return console.log( err );
+      //check if locale is in array
+      if ( languageCodes.indexOf( locale ) > -1 ) {
+        //1///start it all
+        readFile( fileToTranslate );
+      } else {
+        return console.log( '\nlocale is invalid. For a list of valid locales try $ tresx ls \n' );
+      }
+    } );
+  }
 
 
 };

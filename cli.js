@@ -15,12 +15,12 @@ var args = require( 'yargs' )
     alias: 'f',
     describe: 'RESX File to Translate'
   } )
-  .demand('f')
+  .demand( 'f' )
   .option( 'locale', {
     alias: 'l',
     describe: 'Locale to Translate to || Defaults to \'es\''
   } )
-  .demand('l')
+  .demand( 'l' )
   // .option( 'key', {
   //   alias: 'k',
   //   describe: 'API Key for use with configure'
@@ -32,8 +32,9 @@ var args = require( 'yargs' )
   // .command( 'configure', 'set Google Translate API Key', {}, function ( argv ) {
   //   //echo('export TESTENV='+argv.key);
   // } )
-  .example('$0 -f foo.resx -l es', 'Translate foo.resx to foo.es.resx')
+  .example( '$0 -f foo.resx -l es', 'Translate foo.resx to foo.es.resx' )
   .help( 'help' )
+  .alias( 'help', 'h' )
   .argv;
 
 
@@ -48,6 +49,6 @@ if ( ( args.f ) || ( args.file ) && ( args.l ) || ( args.locale ) ) {
 
   var locale = args.l || 'es';
   var filepath = args.f || args.file;
-
+  locale = locale.toLowerCase();
   translateResx.translate( filepath, locale );
 }
